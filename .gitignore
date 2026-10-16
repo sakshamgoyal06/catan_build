@@ -1,0 +1,14 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+build/
+**/ios/Pods/
+**/ios/.symlinks/
+**/android/.gradle/
+**/android/local.properties
+**/*.iml
+.idea/
+*.lock
+
+# Misc
+.DS_Store
