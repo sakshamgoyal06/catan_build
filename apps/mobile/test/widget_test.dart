@@ -6,4 +6,11 @@ void main() {
     await tester.pumpWidget(const HexwildApp());
     expect(find.text('Hexwild'), findsOneWidget);
   });
+
+  testWidgets('Play demo board opens table', (tester) async {
+    await tester.pumpWidget(const HexwildApp());
+    await tester.tap(find.text('Play demo board'));
+    await tester.pumpAndSettle();
+    expect(find.text('Demo expedition'), findsOneWidget);
+  });
 }

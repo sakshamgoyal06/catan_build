@@ -1,7 +1,7 @@
 name: hexwild
 description: Hexwild — nearby-first multiplayer hex territory game.
 publish_to: 'none'
-version: 0.1.0+1
+version: 0.1.1+2
 
 environment:
   sdk: ^3.5.4
@@ -12,7 +12,6 @@ dependencies:
   cupertino_icons: ^1.0.8
   hexwild_rules:
     path: ../../packages/hexwild_rules
-  google_fonts: ^6.2.1
   network_info_plus: ^6.0.2
   shelf: ^1.4.1
   shelf_web_socket: ^2.0.1
