@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hexwild_rules/hexwild_rules.dart';
 
 import '../nearby/lobby_state.dart';
+import '../navigation/open_demo_table.dart';
+import '../widgets/app_background.dart';
 import '../widgets/hex_board_painter.dart';
 
 class TableScreen extends StatelessWidget {
@@ -36,25 +38,48 @@ class TableScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final board = lobby.board!;
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(lobby.isDemo ? 'Demo board' : 'Room ${lobby.roomCode}'),
+        title: Text(lobby.isDemo ? 'Demo expedition' : 'Room ${lobby.roomCode}'),
         actions: [
+          if (lobby.isDemo)
+            TextButton(
+              onPressed: () => openDemoTable(context),
+              child: const Text('New map'),
+            ),
           Padding(
-            padding: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.only(right: 12),
             child: Center(
-              child: Text(
-                lobby.phase.label,
-                style: Theme.of(context).textTheme.labelLarge,
+              child: Chip(
+                label: Text(lobby.phase.label),
+                visualDensity: VisualDensity.compact,
               ),
             ),
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(child: HexBoardView(board: board)),
-          _ActionTray(phase: lobby.phase),
-        ],
+      body: AppBackground(
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+                child: Text(
+                  'Pinch to explore the island · ${lobby.players.length} explorer(s)',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.55),
+                      ),
+                ),
+              ),
+              Expanded(child: HexBoardView(board: board)),
+              _ActionTray(phase: lobby.phase),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -69,41 +94,47 @@ class _ActionTray extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        border: Border(
-          top: BorderSide(color: Colors.white.withOpacity(0.08)),
-        ),
+        color: const Color(0xFF141B24).withOpacity(0.95),
+        border: Border(top: BorderSide(color: Colors.white.withOpacity(0.08))),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.35),
+            blurRadius: 16,
+            offset: const Offset(0, -4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Setup phase preview',
-            style: Theme.of(context).textTheme.titleSmall,
+            phase.label,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
-            'Turn rules and building arrive in the next sprint — board generation and nearby lobby are live.',
+            'Roll, trade, and build arrive next — demo map and lobby are live.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context)
                       .colorScheme
                       .onSurface
-                      .withOpacity(0.6),
+                      .withOpacity(0.58),
                 ),
           ),
-          const SizedBox(height: 12),
-          const Row(
+          const SizedBox(height: 14),
+          Row(
             children: [
-              _TrayButton(label: 'Roll', icon: Icons.casino_outlined, enabled: false),
-              _TrayButton(label: 'Build', icon: Icons.construction_outlined, enabled: false),
-              _TrayButton(label: 'Trade', icon: Icons.swap_horiz_rounded, enabled: false),
+              _TrayButton(label: 'Roll', icon: Icons.casino_outlined),
+              _TrayButton(label: 'Build', icon: Icons.construction_outlined),
+              _TrayButton(label: 'Trade', icon: Icons.swap_horiz_rounded),
               _TrayButton(
                 label: 'Fortune',
                 icon: Icons.style_outlined,
-                enabled: false,
               ),
             ],
           ),
@@ -114,33 +145,40 @@ class _ActionTray extends StatelessWidget {
 }
 
 class _TrayButton extends StatelessWidget {
-  const _TrayButton({
-    required this.label,
-    required this.icon,
-    required this.enabled,
-  });
+  const _TrayButton({required this.label, required this.icon});
 
   final String label;
   final IconData icon;
-  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: FilledButton.tonal(
-          onPressed: enabled ? () {} : null,
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 20),
-              const SizedBox(height: 4),
-              Text(label, style: const TextStyle(fontSize: 11)),
-            ],
+        child: Material(
+          color: Colors.white.withOpacity(0.06),
+          borderRadius: BorderRadius.circular(14),
+          child: InkWell(
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('$label — coming in the next update'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+            borderRadius: BorderRadius.circular(14),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 22, color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(height: 4),
+                  Text(label, style: const TextStyle(fontSize: 11)),
+                ],
+              ),
+            ),
           ),
         ),
       ),

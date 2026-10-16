@@ -36,6 +36,7 @@ jobs:
           cd apps/mobile
           flutter build web \
             --release \
+            --web-renderer html \
             --base-href "/${{ github.event.repository.name }}/" \
             --pwa-strategy offline-first
 
