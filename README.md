@@ -17,9 +17,16 @@ The icon opens like a normal app (no browser chrome). When you push to `main`, G
 
 ## One-time GitHub setup (auto-updates)
 
-1. Merge/deploy to **`main`** (the workflow runs on every push to `main`).
-2. Repo **Settings → Pages → Build and deployment → Source:** choose **GitHub Actions** (not “Deploy from branch”).
-3. After the first successful workflow run, your Pages URL is live.
+1. Open **[Settings → Pages](https://github.com/sakshamgoyal06/catan_build/settings/pages)** for this repo.
+2. Under **Build and deployment → Source**, choose **GitHub Actions** (not “Deploy from a branch”).  
+   If Pages was never enabled, pick **GitHub Actions** once — this creates the Pages site.
+3. Push to **`main`** or re-run the workflow: **Actions → Deploy web PWA → Run workflow**.
+
+After a green deploy, the site is at **https://sakshamgoyal06.github.io/catan_build/**
+
+### Deploy failed with `HttpError: Not Found` / “Ensure GitHub Pages has been enabled”
+
+The Flutter **build** succeeded; **deploy** failed because Pages is not turned on yet. Do step 1–2 above, then **Re-run all jobs** on the failed workflow run.
 
 Workflow file: `.github/workflows/deploy-web-pwa.yml`
 
