@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hexwild_rules/hexwild_rules.dart';
 
-import '../nearby/lan_host_service.dart';
+import '../nearby/lobby_state.dart';
 import '../widgets/hex_board_painter.dart';
 
 class TableScreen extends StatelessWidget {
@@ -14,19 +14,18 @@ class TableScreen extends StatelessWidget {
         roomCode: json['roomCode'] as String,
         hostAddress: json['hostAddress'] as String,
         port: json['port'] as int,
-        players: (json['players'] as List<dynamic>)
-            .map((p) {
-              final m = p as Map<String, dynamic>;
-              return LobbyPlayer(
-                id: m['id'] as String,
-                displayName: m['displayName'] as String,
-                color: PlayerColor.values.byName(m['color'] as String),
-                ready: m['ready'] as bool? ?? false,
-              );
-            })
-            .toList(),
+        players: (json['players'] as List<dynamic>).map((p) {
+          final m = p as Map<String, dynamic>;
+          return LobbyPlayer(
+            id: m['id'] as String,
+            displayName: m['displayName'] as String,
+            color: PlayerColor.values.byName(m['color'] as String),
+            ready: m['ready'] as bool? ?? false,
+          );
+        }).toList(),
         phase: GamePhase.values.byName(json['phase'] as String),
         board: BoardLayout.fromJson(boardJson),
+        isDemo: json['isDemo'] as bool? ?? false,
       ),
     );
   }
@@ -38,7 +37,7 @@ class TableScreen extends StatelessWidget {
     final board = lobby.board!;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Room ${lobby.roomCode}'),
+        title: Text(lobby.isDemo ? 'Demo board' : 'Room ${lobby.roomCode}'),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -74,7 +73,7 @@ class _ActionTray extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         border: Border(
-          top: BorderSide(color: Colors.white.withOpacity( 0.08)),
+          top: BorderSide(color: Colors.white.withOpacity(0.08)),
         ),
       ),
       child: Column(
@@ -92,17 +91,17 @@ class _ActionTray extends StatelessWidget {
                   color: Theme.of(context)
                       .colorScheme
                       .onSurface
-                      .withOpacity( 0.6),
+                      .withOpacity(0.6),
                 ),
           ),
           const SizedBox(height: 12),
-          Row(
+          const Row(
             children: [
               _TrayButton(label: 'Roll', icon: Icons.casino_outlined, enabled: false),
               _TrayButton(label: 'Build', icon: Icons.construction_outlined, enabled: false),
               _TrayButton(label: 'Trade', icon: Icons.swap_horiz_rounded, enabled: false),
               _TrayButton(
-                label: HexwildLexicon.fortuneCards,
+                label: 'Fortune',
                 icon: Icons.style_outlined,
                 enabled: false,
               ),

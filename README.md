@@ -1,60 +1,63 @@
 # Hexwild
 
-Original hex territory board game (Catan-style structure, own names and art). **Nearby-first** MVP on **Flutter**, with online play planned for phase 2.
+Original hex territory board game (Catan-style structure, own names and art). **Installable web app (PWA)** with auto-deploy from GitHub, plus native Android/iOS for full nearby hosting.
 
-## Why Flutter (not React Native)
+## Install on your phone (recommended)
 
-| Factor | Flutter | React Native |
-|--------|---------|--------------|
-| Hex board rendering | CustomPainter + Skia, smooth pinch/zoom | RN Skia works; more bridge friction |
-| Touch/gesture game UI | First-class, consistent iOS/Android | Good with extra libraries |
-| Nearby native APIs | Platform channels / existing plugins | Expo needs custom native modules |
-| Shared rules with future Node server | Dart package now; port or codegen later | Same TS package as backend |
+After GitHub Pages is enabled (see below), open:
 
-For a **gesture-heavy board game + Multipeer/Nearby**, Flutter is the better default.
+**https://sakshamgoyal06.github.io/catan_build/**
 
-## Renaming (structure unchanged)
+| Platform | Install steps |
+|----------|----------------|
+| **iPhone (Safari)** | Open the URL → Share → **Add to Home Screen** |
+| **Android (Chrome)** | Open the URL → menu → **Install app** or **Add to Home screen** |
 
-| Classic | Hexwild |
-|---------|---------|
-| Settlement / City | Outpost / Stronghold |
-| Road | Trail |
-| Robber | Raider |
-| Development cards | Fortune cards |
-| Longest Road | Great Route |
-| Largest Army | Warlord's Banner |
-| Wood, Brick, Sheep, Wheat, Ore | Timber, Clay, Wool, Grain, Iron |
-| Desert | Badlands |
+The icon opens like a normal app (no browser chrome). When you push to `main`, GitHub Actions rebuilds the site; **close and reopen** the app (or refresh once) to pick up updates.
 
-## Repo layout
+## One-time GitHub setup (auto-updates)
 
-```
-apps/mobile/           Flutter app (iOS + Android)
-packages/hexwild_rules/  Board generation, protocol, shared types
-```
+1. Merge/deploy to **`main`** (the workflow runs on every push to `main`).
+2. Repo **Settings → Pages → Build and deployment → Source:** choose **GitHub Actions** (not “Deploy from branch”).
+3. After the first successful workflow run, your Pages URL is live.
 
-## Nearby MVP (current)
+Workflow file: `.github/workflows/deploy-web-pwa.yml`
 
-1. **Host** opens a LAN WebSocket (port `8765`), shows room code + local IP.
-2. **Join** with host IP + display name (same Wi‑Fi).
-3. Host starts at **3–4 explorers** → random 19-hex board → table view with pinch-zoom map.
-
-Next slices: setup placement, roll/trade/build state machine, BLE/mDNS discovery, then online authoritative server.
-
-## Develop
-
-Requires Flutter 3.24+ (`flutter` on PATH).
+## Run locally (web)
 
 ```bash
 cd apps/mobile
 flutter pub get
-flutter run
-cd ../../packages/hexwild_rules && dart test
+flutter run -d chrome
+# production-like build:
+flutter build web --release --base-href "/catan_build/" --pwa-strategy offline-first
+# serve build/web with any static server for testing install prompts
 ```
 
-## Phase roadmap
+## Run locally (native — full nearby host)
 
-1. **Now** — LAN lobby + board + rules package skeleton  
-2. Full turn loop (host-authoritative)  
-3. iOS Multipeer + Android Nearby + mDNS  
-4. Online server + accounts + reconnect  
+```bash
+cd apps/mobile
+flutter pub get
+flutter run   # phone or emulator
+```
+
+Nearby MVP on **native**: host opens LAN WebSocket on port **8765**; friends join with host IP. **Web PWA** uses a **solo demo board** (browsers cannot host LAN servers); use native builds to host for friends.
+
+## Rules package tests
+
+```bash
+cd packages/hexwild_rules && dart test
+```
+
+## Repo layout
+
+```
+apps/mobile/             Flutter app (web PWA + Android + iOS)
+packages/hexwild_rules/  Board generation, protocol, shared types
+.github/workflows/       Deploy web to GitHub Pages on push to main
+```
+
+## Why Flutter
+
+Hex board rendering, one codebase for PWA + native, and a clear path to Multipeer/Nearby on mobile. See earlier project notes for online phase 2.

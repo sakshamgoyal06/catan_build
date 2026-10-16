@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hexwild_rules/hexwild_rules.dart';
 
@@ -18,6 +19,8 @@ class _HostLobbyScreenState extends State<HostLobbyScreen> {
   LobbyState? _lobby;
   String? _error;
   bool _starting = false;
+
+  int get _minPlayers => kIsWeb ? 1 : 3;
 
   @override
   void dispose() {
@@ -77,6 +80,20 @@ class _HostLobbyScreenState extends State<HostLobbyScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (kIsWeb) ...[
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'In the installed web app, hosting uses a solo demo board. '
+                'Full nearby hosting (friends on Wi‑Fi) needs the Android/iOS build. '
+                'Joining a native host from the web app may be blocked by the browser.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
         TextField(
           controller: _nameController,
           decoration: const InputDecoration(
@@ -100,7 +117,7 @@ class _HostLobbyScreenState extends State<HostLobbyScreen> {
                   width: 22,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Open lobby'),
+              : Text(kIsWeb ? 'Start demo table' : 'Open lobby'),
         ),
       ],
     );
@@ -117,22 +134,29 @@ class _HostLobbyScreenState extends State<HostLobbyScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Room code', style: Theme.of(context).textTheme.labelLarge),
-                const SizedBox(height: 4),
-                Text(
-                  lobby.roomCode,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        letterSpacing: 4,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 12),
-                Text('Host address: ${lobby.hostAddress}:${lobby.port}'),
-                const SizedBox(height: 4),
-                Text(
-                  'Friends on the same Wi‑Fi can join with this IP.',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
+                if (lobby.isDemo)
+                  Text(
+                    'Demo mode',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  )
+                else ...[
+                  Text('Room code', style: Theme.of(context).textTheme.labelLarge),
+                  const SizedBox(height: 4),
+                  Text(
+                    lobby.roomCode,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          letterSpacing: 4,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text('Host address: ${lobby.hostAddress}:${lobby.port}'),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Friends on the same Wi‑Fi can join with this IP.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
               ],
             ),
           ),
@@ -165,11 +189,11 @@ class _HostLobbyScreenState extends State<HostLobbyScreen> {
           ),
         ),
         FilledButton(
-          onPressed: lobby.players.length >= 3 ? _beginGame : null,
+          onPressed: lobby.players.length >= _minPlayers ? _beginGame : null,
           child: Text(
-            lobby.players.length >= 3
-                ? 'Begin expedition'
-                : 'Need ${3 - lobby.players.length} more explorer(s)',
+            lobby.players.length >= _minPlayers
+                ? (kIsWeb ? 'View demo board' : 'Begin expedition')
+                : 'Need ${_minPlayers - lobby.players.length} more explorer(s)',
           ),
         ),
       ],

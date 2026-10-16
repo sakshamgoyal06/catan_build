@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hexwild_rules/hexwild_rules.dart';
 
@@ -100,6 +101,19 @@ class _JoinLobbyScreenState extends State<JoinLobbyScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (kIsWeb)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Text(
+                    'The installed web app is served over HTTPS. Connecting to a '
+                    'home Wi‑Fi host (ws://…) may be blocked in some browsers. '
+                    'Use the native app to host; try Join here if your browser allows local network access.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+              ),
+            if (kIsWeb) const SizedBox(height: 12),
             TextField(
               controller: _hostController,
               decoration: const InputDecoration(

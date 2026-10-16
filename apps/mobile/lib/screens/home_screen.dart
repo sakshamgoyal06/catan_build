@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hexwild_rules/hexwild_rules.dart';
 
@@ -26,16 +27,24 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Claim the frontier with friends nearby — same Wi‑Fi, no account.',
+                kIsWeb
+                    ? 'Install this app on your home screen — it updates automatically when GitHub deploys.'
+                    : 'Claim the frontier with friends nearby — same Wi‑Fi, no account.',
                 style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity( 0.65),
+                  color: theme.colorScheme.onSurface.withOpacity(0.65),
                   height: 1.4,
                 ),
               ),
+              if (kIsWeb) ...[
+                const SizedBox(height: 12),
+                const _InstallHint(),
+              ],
               const Spacer(),
               _PrimaryAction(
-                label: 'Host nearby table',
-                subtitle: 'Start a lobby on this device',
+                label: kIsWeb ? 'Try demo table' : 'Host nearby table',
+                subtitle: kIsWeb
+                    ? 'Random board preview on this device'
+                    : 'Start a lobby on this device',
                 icon: Icons.wifi_tethering_rounded,
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
@@ -46,7 +55,9 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 12),
               _PrimaryAction(
                 label: 'Join nearby table',
-                subtitle: 'Enter host IP and room code',
+                subtitle: kIsWeb
+                    ? 'Connect to a native host on your Wi‑Fi'
+                    : 'Enter host IP and room code',
                 icon: Icons.join_inner_rounded,
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
@@ -56,14 +67,49 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               Text(
-                'Online play comes in phase 2 — nearby LAN first.',
+                kIsWeb
+                    ? 'Native Android/iOS builds support full nearby hosting.'
+                    : 'Online play comes in phase 2 — nearby LAN first.',
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity( 0.45),
+                  color: theme.colorScheme.onSurface.withOpacity(0.45),
                 ),
               ),
               const SizedBox(height: 12),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _InstallHint extends StatelessWidget {
+  const _InstallHint();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.install_mobile_rounded,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'iPhone: Share → Add to Home Screen. '
+                'Android: Menu → Install app (or Add to Home screen). '
+                'Reopen after updates to load the latest version.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      height: 1.45,
+                    ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -114,7 +160,7 @@ class _PrimaryAction extends StatelessWidget {
                             color: Theme.of(context)
                                 .colorScheme
                                 .onSurface
-                                .withOpacity( 0.55),
+                                .withOpacity(0.55),
                           ),
                     ),
                   ],
